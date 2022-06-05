@@ -83,6 +83,8 @@
 
 // #define _BLE_TRACE_
 
+static BLELocalDeviceCallbacks defaultCallbacks;
+
 ATTClass::ATTClass() :
   _maxMtu(23),
   _timeout(5000),
@@ -101,6 +103,9 @@ ATTClass::ATTClass() :
   }
 
   memset(_eventHandlers, 0x00, sizeof(_eventHandlers));
+
+  _callbacks = &defaultCallbacks;
+  _deleteCallbacks = true;
 }
 
 ATTClass::~ATTClass()
@@ -108,7 +113,19 @@ ATTClass::~ATTClass()
   if (_longWriteValue) {
     free(_longWriteValue);
   }
+  
+  if(_deleteCallbacks && _callbacks != &defaultCallbacks)
+    delete _callbacks;
 }
+
+void ATTClass::setCallbacks(BLELocalDeviceCallbacks* callbacks, bool deleteCallbacks) {
+    if (callbacks != nullptr){
+        _callbacks = callbacks;
+        _deleteCallbacks = deleteCallbacks;
+    } else {
+        _callbacks = &defaultCallbacks;
+    }
+} 
 
 bool ATTClass::connect(uint8_t peerBdaddrType, uint8_t peerBdaddr[6])
 {
@@ -271,6 +288,7 @@ void ATTClass::addConnection(uint16_t handle, uint8_t role, uint8_t peerBdaddrTy
   if (_eventHandlers[BLEConnected]) {
     _eventHandlers[BLEConnected](BLEDevice(peerBdaddrType, peerBdaddr));
   }
+  _callbacks->onConnect(this);
 }
 
 void ATTClass::handleData(uint16_t connectionHandle, uint8_t dlen, uint8_t data[])
@@ -431,6 +449,7 @@ void ATTClass::removeConnection(uint16_t handle, uint8_t /*reason*/)
   if (_eventHandlers[BLEDisconnected]) {
     _eventHandlers[BLEDisconnected](bleDevice);
   }
+  _callbacks->onDisconnect(this);
 
   _peers[peerIndex].connectionHandle = 0xffff;
   _peers[peerIndex].role = 0x00;

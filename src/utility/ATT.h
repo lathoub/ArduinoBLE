@@ -48,11 +48,14 @@ enum PEER_ENCRYPTION {
 };
 
 class BLERemoteDevice;
+class BLELocalDeviceCallbacks;
 
 class ATTClass {
 public:
   ATTClass();
   virtual ~ATTClass();
+
+  virtual void setCallbacks(BLELocalDeviceCallbacks*, bool deleteCallbacks);
 
   virtual void setMaxMtu(uint16_t maxMtu);
   virtual void setTimeout(unsigned long timeout);
@@ -170,6 +173,16 @@ private:
   } _pendingResp;
 
   BLEDeviceEventHandler _eventHandlers[2];
+
+  BLELocalDeviceCallbacks* _callbacks;
+  bool _deleteCallbacks;
+};
+
+class BLELocalDeviceCallbacks {
+public:
+    virtual ~BLELocalDeviceCallbacks() {};
+    virtual void onConnect(void*) {};
+    virtual void onDisconnect(void*) {};
 };
 
 extern ATTClass& ATT;

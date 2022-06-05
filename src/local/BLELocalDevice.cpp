@@ -17,7 +17,6 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "utility/ATT.h"
 #include "utility/HCI.h"
 #include "utility/GAP.h"
 #include "utility/GATT.h"
@@ -373,6 +372,10 @@ BLEDevice BLELocalDevice::available()
 
   return GAP.available();
 }
+
+void BLELocalDevice::setCallbacks(BLELocalDeviceCallbacks* callbacks, bool deleteCallbacks) {
+  ATT.setCallbacks(callbacks, deleteCallbacks);
+} 
 
 void BLELocalDevice::setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler eventHandler)
 {

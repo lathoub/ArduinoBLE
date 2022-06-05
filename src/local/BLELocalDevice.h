@@ -23,6 +23,7 @@
 #include "BLEDevice.h"
 #include "BLEService.h"
 #include "BLEAdvertisingData.h"
+#include "utility/ATT.h"
 
 enum Pairable {
   NO = 0,
@@ -81,6 +82,7 @@ public:
   virtual void setConnectable(bool connectable); 
 
   virtual void setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler eventHandler);
+  virtual void setCallbacks(BLELocalDeviceCallbacks*, bool deleteCallbacks = true);
 
   virtual void setTimeout(unsigned long timeout);
 
@@ -116,6 +118,9 @@ protected:
 private:
   BLEAdvertisingData _advertisingData;
   BLEAdvertisingData _scanResponseData;
+
+  BLELocalDeviceCallbacks* _callbacks;
+  bool _deleteCallbacks;
 };
 
 extern BLELocalDevice& BLE;
