@@ -55,8 +55,6 @@ public:
   ATTClass();
   virtual ~ATTClass();
 
-  virtual void setCallbacks(BLELocalDeviceCallbacks*, bool deleteCallbacks);
-
   virtual void setMaxMtu(uint16_t maxMtu);
   virtual void setTimeout(unsigned long timeout);
 
@@ -90,6 +88,7 @@ public:
   virtual bool handleInd(uint16_t handle, const uint8_t* value, int length);
 
   virtual void setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler eventHandler);
+  virtual void setCallbacks(BLELocalDeviceCallbacks*, bool deleteCallbacks);
 
   virtual int readReq(uint16_t connectionHandle, uint16_t handle, uint8_t responseBuffer[]);
   virtual int writeReq(uint16_t connectionHandle, uint16_t handle, const uint8_t* data, uint8_t dataLen, uint8_t responseBuffer[]);

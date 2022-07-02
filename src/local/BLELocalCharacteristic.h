@@ -30,6 +30,7 @@
 #include "utility/BLELinkedList.h"
 
 class BLELocalDescriptor;
+class BLELocalCharacteristicCallbacks;
 
 class BLELocalCharacteristic : public BLELocalAttribute {
 public:
@@ -58,6 +59,7 @@ public:
   void addDescriptor(BLEDescriptor& descriptor);
 
   void setEventHandler(BLECharacteristicEvent event, BLECharacteristicEventHandler eventHandler);
+  void setCallbacks(BLELocalCharacteristicCallbacks*, bool deleteCallbacks);
 
 protected:
   friend class ATTClass;
@@ -91,6 +93,16 @@ private:
   BLELinkedList<BLELocalDescriptor*> _descriptors;
 
   BLECharacteristicEventHandler _eventHandlers[BLECharacteristicEventLast];
+
+  BLELocalCharacteristicCallbacks* _callbacks;
+  bool _deleteCallbacks;
+};
+
+class BLELocalCharacteristicCallbacks {
+public:
+    virtual ~BLELocalCharacteristicCallbacks() {};
+    virtual void onWrite(BLELocalCharacteristic*) {};
+    virtual void onRead(BLELocalCharacteristic*) {};
 };
 
 #endif
