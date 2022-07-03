@@ -19,6 +19,9 @@
 
 #include "BLEProperty.h"
 
+#include "local/BLELocalCharacteristic.h"
+#include "remote/BLERemoteCharacteristic.h"
+
 #include "BLECharacteristic.h"
 
 BLECharacteristic::BLECharacteristic() :
@@ -356,9 +359,9 @@ void BLECharacteristic::setEventHandler(int event, BLECharacteristicEventHandler
   }
 }
 
-void BLECharacteristic::setCallbacks(BLELocalCharacteristicCallbacks* callbacks, bool deleteCallbacks) {
+void BLECharacteristic::setCallbacks(BLECharacteristicCallbacks* callbacks, bool deleteCallbacks) {
   if (_local) {
-    _local->setCallbacks((BLELocalCharacteristicCallbacks*)callbacks, deleteCallbacks);
+    _local->setCallbacks((BLECharacteristicCallbacks*)callbacks, deleteCallbacks);
   }
 
   if (_remote) {

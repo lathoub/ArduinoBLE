@@ -36,15 +36,12 @@ enum BLECharacteristicEvent {
 
 class BLECharacteristic;
 class BLEDevice;
-class BLELocalCharacteristicCallbacks;
+class BLECharacteristicCallbacks;
 
 typedef void (*BLECharacteristicEventHandler)(BLEDevice device, BLECharacteristic characteristic);
 
 class BLELocalCharacteristic;
 class BLERemoteCharacteristic;
-
-#include "local/BLELocalCharacteristic.h"
-#include "remote/BLERemoteCharacteristic.h"
 
 class BLECharacteristic  {
 public:
@@ -97,7 +94,7 @@ public:
   operator bool() const;
 
   void setEventHandler(int event, BLECharacteristicEventHandler eventHandler);
-  void setCallbacks(BLELocalCharacteristicCallbacks*, bool deleteCallbacks = true);
+  void setCallbacks(BLECharacteristicCallbacks*, bool deleteCallbacks = true);
 
   int descriptorCount() const;
   bool hasDescriptor(const char* uuid) const;
@@ -133,5 +130,14 @@ private:
   BLELocalCharacteristic* _local;
   BLERemoteCharacteristic* _remote;
 };
+
+class BLECharacteristicCallbacks {
+public:
+    virtual ~BLECharacteristicCallbacks() {};
+    virtual void onWrite(BLECharacteristic) {};
+    virtual void onRead(BLECharacteristic) {};
+    virtual void onUpdated(BLECharacteristic) {};
+};
+
 
 #endif

@@ -82,7 +82,7 @@ public:
   virtual void setConnectable(bool connectable); 
 
   virtual void setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler eventHandler);
-  virtual void setCallbacks(BLELocalDeviceCallbacks*, bool deleteCallbacks = true);
+  virtual void setCallbacks(BLEDeviceCallbacks*, bool deleteCallbacks = true);
 
   virtual void setTimeout(unsigned long timeout);
 
@@ -119,7 +119,7 @@ private:
   BLEAdvertisingData _advertisingData;
   BLEAdvertisingData _scanResponseData;
 
-  BLELocalDeviceCallbacks* _callbacks;
+  BLEDeviceCallbacks* _callbacks;
   bool _deleteCallbacks;
 };
 

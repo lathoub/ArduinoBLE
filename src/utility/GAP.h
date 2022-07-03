@@ -24,6 +24,8 @@
 
 #include "BLEDevice.h"
 
+class BLEDeviceCallbacks;
+
 class GAPClass {
 public:
   GAPClass();
@@ -44,6 +46,7 @@ public:
   virtual void setConnectable(bool connectable);
 
   virtual void setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler eventHandler);
+  virtual void setCallbacks(BLEDeviceCallbacks*, bool deleteCallbacks);
 
 protected:
   friend class HCIClass;
@@ -63,6 +66,9 @@ private:
 
   BLEDeviceEventHandler _discoverEventHandler;
   BLELinkedList<BLEDevice*> _discoveredDevices;
+
+  BLEDeviceCallbacks* _callbacks;
+  bool _deleteCallbacks;
 
   String _scanNameFilter;
   String _scanUuidFilter;

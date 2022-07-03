@@ -118,4 +118,12 @@ private:
   int8_t _rssi;
 };
 
+class BLEDeviceCallbacks {
+public:
+    virtual ~BLEDeviceCallbacks() {};
+    virtual void onConnect(BLEDevice) {};
+    virtual void onDisconnect(BLEDevice) {};
+    virtual void onDiscover(BLEDevice) {};
+};
+
 #endif

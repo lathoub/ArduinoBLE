@@ -52,6 +52,7 @@ public:
   BLERemoteDescriptor* descriptor(unsigned int index) const;
 
   void setEventHandler(BLECharacteristicEvent event, BLECharacteristicEventHandler eventHandler);
+  void setCallbacks(BLECharacteristicCallbacks*, bool deleteCallbacks);
 
 protected:
   friend class ATTClass;
@@ -79,6 +80,9 @@ private:
   BLELinkedList<BLERemoteDescriptor*> _descriptors;
 
   BLECharacteristicEventHandler _valueUpdatedEventHandler;
+
+  BLECharacteristicCallbacks* _callbacks;
+  bool _deleteCallbacks;
 };
 
 #endif

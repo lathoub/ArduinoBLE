@@ -373,7 +373,7 @@ BLEDevice BLELocalDevice::available()
   return GAP.available();
 }
 
-void BLELocalDevice::setCallbacks(BLELocalDeviceCallbacks* callbacks, bool deleteCallbacks) {
+void BLELocalDevice::setCallbacks(BLEDeviceCallbacks* callbacks, bool deleteCallbacks) {
   ATT.setCallbacks(callbacks, deleteCallbacks);
 } 
 

@@ -28,6 +28,8 @@
 #define GAP_ADV_SCAN_IND (0x02)
 #define GAP_ADV_NONCONN_IND (0x03)
 
+static BLEDeviceCallbacks defaultCallback; // null-object-pattern
+
 GAPClass::GAPClass() :
   _advertising(false),
   _scanning(false),
@@ -35,10 +37,14 @@ GAPClass::GAPClass() :
   _connectable(true),
   _discoverEventHandler(NULL)
 {
+  _callbacks = &defaultCallback;
+  _deleteCallbacks = true;
 }
 
 GAPClass::~GAPClass()
 {
+  if(_deleteCallbacks && _callbacks != &defaultCallback)
+    delete _callbacks;
 }
 
 bool GAPClass::advertising()
@@ -181,6 +187,15 @@ void GAPClass::setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler event
   }
 }
 
+void GAPClass::setCallbacks(BLEDeviceCallbacks* callbacks, bool deleteCallbacks) {
+    if (callbacks != nullptr){
+        _callbacks = callbacks;
+        _deleteCallbacks = deleteCallbacks;
+    } else {
+        _callbacks = &defaultCallback;
+    }
+} 
+
 void GAPClass::handleLeAdvertisingReport(uint8_t type, uint8_t addressType, uint8_t address[6],
                                           uint8_t eirLength, uint8_t eirData[], int8_t rssi)
 {
@@ -188,15 +203,19 @@ void GAPClass::handleLeAdvertisingReport(uint8_t type, uint8_t addressType, uint
     return;
   }
 
-  if (_discoverEventHandler && type == 0x03) {
-    // call event handler and skip adding to discover list
+  if (type == 0x03) {
+        // call event handler and skip adding to discover list
     BLEDevice device(addressType, address);
 
     device.setAdvertisementData(type, eirLength, eirData, rssi);
 
     if (matchesScanFilter(device)) {
-      _discoverEventHandler(device);
+      if (_discoverEventHandler)
+        _discoverEventHandler(device);
+
+      _callbacks->onDiscover(device);
     }
+    
     return;
   }
 
@@ -232,7 +251,7 @@ void GAPClass::handleLeAdvertisingReport(uint8_t type, uint8_t addressType, uint
     discoveredDevice->setScanResponseData(eirLength, eirData, rssi);
   }
 
-  if (discoveredDevice->discovered() && _discoverEventHandler) {
+  if (discoveredDevice->discovered()) {
     // remove from list and report as discovered
     BLEDevice device = *discoveredDevice;
 
@@ -240,9 +259,12 @@ void GAPClass::handleLeAdvertisingReport(uint8_t type, uint8_t addressType, uint
     delete discoveredDevice;
 
     if (matchesScanFilter(device)) {
-      _discoverEventHandler(device);
+      if (_discoverEventHandler)
+        _discoverEventHandler(device);
+      _callbacks->onDiscover(device);
     }
   }
+
 }
 
 bool GAPClass::matchesScanFilter(const BLEDevice& device)

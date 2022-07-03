@@ -29,7 +29,7 @@
 
 #include "BLELocalCharacteristic.h"
 
-static BLELocalCharacteristicCallbacks defaultCallbacks;
+static BLECharacteristicCallbacks defaultCallback;  // null-object-pattern
 
 BLELocalCharacteristic::BLELocalCharacteristic(const char* uuid, uint16_t permissions, int valueSize, bool fixedLength) :
   BLELocalAttribute(uuid),
@@ -53,7 +53,7 @@ BLELocalCharacteristic::BLELocalCharacteristic(const char* uuid, uint16_t permis
 
   _value = (uint8_t*)malloc(valueSize);
 
-  _callbacks = &defaultCallbacks;
+  _callbacks = &defaultCallback;
   _deleteCallbacks = true;
 }
 
@@ -72,7 +72,7 @@ BLELocalCharacteristic::~BLELocalCharacteristic()
       delete d;
     }
 
-    if(_deleteCallbacks && _callbacks != &defaultCallbacks)
+    if(_deleteCallbacks && _callbacks != &defaultCallback)
       delete _callbacks;
   }
 
@@ -193,12 +193,12 @@ void BLELocalCharacteristic::setEventHandler(BLECharacteristicEvent event, BLECh
   }
 }
 
-void BLELocalCharacteristic::setCallbacks(BLELocalCharacteristicCallbacks* callbacks, bool deleteCallbacks) {
+void BLELocalCharacteristic::setCallbacks(BLECharacteristicCallbacks* callbacks, bool deleteCallbacks) {
     if (callbacks != nullptr){
         _callbacks = callbacks;
         _deleteCallbacks = deleteCallbacks;
     } else {
-        _callbacks = &defaultCallbacks;
+        _callbacks = &defaultCallback;
     }
 } 
 
@@ -232,7 +232,7 @@ void BLELocalCharacteristic::readValue(BLEDevice device, uint16_t offset, uint8_
   if (_eventHandlers[BLERead]) {
     _eventHandlers[BLERead](device, BLECharacteristic(this));
   }
-  _callbacks->onRead(this);
+  _callbacks->onRead(BLECharacteristic(this));
 
   memcpy(value, _value + offset, length);
 }
@@ -246,7 +246,7 @@ void BLELocalCharacteristic::writeValue(BLEDevice device, const uint8_t value[],
   if (_eventHandlers[BLEWritten]) {
     _eventHandlers[BLEWritten](device, BLECharacteristic(this));
   }
-  _callbacks->onWrite(this);
+  _callbacks->onWrite(BLECharacteristic(this));
 }
 
 void BLELocalCharacteristic::writeCccdValue(BLEDevice device, uint16_t value)
@@ -261,6 +261,6 @@ void BLELocalCharacteristic::writeCccdValue(BLEDevice device, uint16_t value)
     if (_eventHandlers[event]) {
       _eventHandlers[event](device, BLECharacteristic(this));
     }
-    _callbacks->onWrite(this);
+  //  _callbacks->onWrite(BLECharacteristic(this));
   }
 }

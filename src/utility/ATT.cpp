@@ -83,7 +83,7 @@
 
 // #define _BLE_TRACE_
 
-static BLELocalDeviceCallbacks defaultCallbacks;
+static BLEDeviceCallbacks defaultCallback; // null-object-pattern
 
 ATTClass::ATTClass() :
   _maxMtu(23),
@@ -104,7 +104,7 @@ ATTClass::ATTClass() :
 
   memset(_eventHandlers, 0x00, sizeof(_eventHandlers));
 
-  _callbacks = &defaultCallbacks;
+  _callbacks = &defaultCallback;
   _deleteCallbacks = true;
 }
 
@@ -114,18 +114,9 @@ ATTClass::~ATTClass()
     free(_longWriteValue);
   }
   
-  if(_deleteCallbacks && _callbacks != &defaultCallbacks)
+  if(_deleteCallbacks && _callbacks != &defaultCallback)
     delete _callbacks;
 }
-
-void ATTClass::setCallbacks(BLELocalDeviceCallbacks* callbacks, bool deleteCallbacks) {
-    if (callbacks != nullptr){
-        _callbacks = callbacks;
-        _deleteCallbacks = deleteCallbacks;
-    } else {
-        _callbacks = &defaultCallbacks;
-    }
-} 
 
 bool ATTClass::connect(uint8_t peerBdaddrType, uint8_t peerBdaddr[6])
 {
@@ -288,7 +279,7 @@ void ATTClass::addConnection(uint16_t handle, uint8_t role, uint8_t peerBdaddrTy
   if (_eventHandlers[BLEConnected]) {
     _eventHandlers[BLEConnected](BLEDevice(peerBdaddrType, peerBdaddr));
   }
-  _callbacks->onConnect(this);
+  _callbacks->onConnect(BLEDevice(peerBdaddrType, peerBdaddr));
 }
 
 void ATTClass::handleData(uint16_t connectionHandle, uint8_t dlen, uint8_t data[])
@@ -449,7 +440,7 @@ void ATTClass::removeConnection(uint16_t handle, uint8_t /*reason*/)
   if (_eventHandlers[BLEDisconnected]) {
     _eventHandlers[BLEDisconnected](bleDevice);
   }
-  _callbacks->onDisconnect(this);
+  _callbacks->onDisconnect(bleDevice);
 
   _peers[peerIndex].connectionHandle = 0xffff;
   _peers[peerIndex].role = 0x00;
@@ -1813,6 +1804,15 @@ void ATTClass::setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler event
     _eventHandlers[event] = eventHandler;
   }
 }
+
+void ATTClass::setCallbacks(BLEDeviceCallbacks* callbacks, bool deleteCallbacks) {
+    if (callbacks != nullptr){
+        _callbacks = callbacks;
+        _deleteCallbacks = deleteCallbacks;
+    } else {
+        _callbacks = &defaultCallback;
+    }
+} 
 
 int ATTClass::readReq(uint16_t connectionHandle, uint16_t handle, uint8_t responseBuffer[])
 {

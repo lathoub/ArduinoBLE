@@ -48,7 +48,7 @@ enum PEER_ENCRYPTION {
 };
 
 class BLERemoteDevice;
-class BLELocalDeviceCallbacks;
+class BLEDeviceCallbacks;
 
 class ATTClass {
 public:
@@ -88,7 +88,7 @@ public:
   virtual bool handleInd(uint16_t handle, const uint8_t* value, int length);
 
   virtual void setEventHandler(BLEDeviceEvent event, BLEDeviceEventHandler eventHandler);
-  virtual void setCallbacks(BLELocalDeviceCallbacks*, bool deleteCallbacks);
+  virtual void setCallbacks(BLEDeviceCallbacks*, bool deleteCallbacks);
 
   virtual int readReq(uint16_t connectionHandle, uint16_t handle, uint8_t responseBuffer[]);
   virtual int writeReq(uint16_t connectionHandle, uint16_t handle, const uint8_t* data, uint8_t dataLen, uint8_t responseBuffer[]);
@@ -173,15 +173,8 @@ private:
 
   BLEDeviceEventHandler _eventHandlers[2];
 
-  BLELocalDeviceCallbacks* _callbacks;
+  BLEDeviceCallbacks* _callbacks;
   bool _deleteCallbacks;
-};
-
-class BLELocalDeviceCallbacks {
-public:
-    virtual ~BLELocalDeviceCallbacks() {};
-    virtual void onConnect(void*) {};
-    virtual void onDisconnect(void*) {};
 };
 
 extern ATTClass& ATT;

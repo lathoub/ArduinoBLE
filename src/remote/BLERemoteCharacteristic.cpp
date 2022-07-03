@@ -23,6 +23,8 @@
 
 #include "BLERemoteCharacteristic.h"
 
+static BLECharacteristicCallbacks defaultCallback;  // null-object-pattern
+
 BLERemoteCharacteristic::BLERemoteCharacteristic(const uint8_t uuid[], uint8_t uuidLen, uint16_t connectionHandle,
                                                   uint16_t startHandle, uint16_t permissions, uint16_t valueHandle) :
   BLERemoteAttribute(uuid, uuidLen),
@@ -37,6 +39,8 @@ BLERemoteCharacteristic::BLERemoteCharacteristic(const uint8_t uuid[], uint8_t u
   _updatedValueRead(true),
   _valueUpdatedEventHandler(NULL)
 {
+  _callbacks = &defaultCallback;
+  _deleteCallbacks = true;
 }
 
 BLERemoteCharacteristic::~BLERemoteCharacteristic()
@@ -55,6 +59,9 @@ BLERemoteCharacteristic::~BLERemoteCharacteristic()
     free(_value);
     _value = NULL;
   }
+
+  if(_deleteCallbacks && _callbacks != &defaultCallback)
+    delete _callbacks;
 }
 
 uint16_t BLERemoteCharacteristic::startHandle() const
@@ -237,6 +244,15 @@ void BLERemoteCharacteristic::setEventHandler(BLECharacteristicEvent event, BLEC
   }
 }
 
+void BLERemoteCharacteristic::setCallbacks(BLECharacteristicCallbacks* callbacks, bool deleteCallbacks) {
+    if (callbacks != nullptr){
+        _callbacks = callbacks;
+        _deleteCallbacks = deleteCallbacks;
+    } else {
+        _callbacks = &defaultCallback;
+    }
+} 
+
 void BLERemoteCharacteristic::addDescriptor(BLERemoteDescriptor* descriptor)
 {
   descriptor->retain();
@@ -261,4 +277,5 @@ void BLERemoteCharacteristic::writeValue(BLEDevice device, const uint8_t value[]
   if (_valueUpdatedEventHandler) {
     _valueUpdatedEventHandler(device, BLECharacteristic(this));
   }
+  _callbacks->onUpdated(BLECharacteristic(this));
 }
